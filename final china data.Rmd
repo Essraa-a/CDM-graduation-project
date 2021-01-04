@@ -1,0 +1,82 @@
+---
+title: "final project"
+author: "Essraa A."
+date: "25/12/2020"
+output:
+  word_document: default
+  html_document: default
+---
+
+
+Loading libiraries:
+
+```{r , echo=TRUE}
+library(tidyverse)
+library(gdata)
+library(ggplot2)
+library(lubridate)
+
+```
+
+Loading and preview the main data:
+
+```{r covid_19_data , echo=TRUE}
+main_data<- read.csv(choose.files(),header = T, stringsAsFactors = T)
+head(main_data)
+
+```
+
+Dropping no needed variables and filter the china data only:
+
+```{r , echo=TRUE}
+filterd_data<- main_data %>% 
+                      remove.vars(names=c("SNo","Province.State","Last.Update"),info=T) %>% 
+                      filter(Country.Region=="Mainland China"|Country.Region=="Hong Kong")
+head(filterd_data)
+
+```
+
+Changing Mainland China & Hong Kong into China:
+
+```{r , echo=TRUE}
+china_data <- mutate(filterd_data,Country.Region= "China")
+head(china_data)
+
+```
+
+Aggregate data by ObservationDate,with renaming the columns again:
+
+```{r , echo=TRUE}
+final_china_data<- aggregate(list(Confirmed=china_data$Confirmed,Deaths=china_data$Deaths,Recovered=china_data$Recovered),by= list(ObservationDate=china_data$ObservationDate,Country.Region
+=china_data$Country.Region),sum)
+head(final_china_data)
+
+```
+
+Saving the data in CSV file:
+
+```{r , echo=TRUE}
+final_china_data<- mutate(final_china_data ,ObservationDate=mdy(ObservationDate))
+plot<- ggplot(final_china_data,aes(x=ObservationDate,y=Confirmed,group=1))+
+                        geom_line()+ 
+                        scale_x_date(date_labels = "%d-%B")                    
+
+```
+
+
+```{r , echo=TRUE}
+plot<- ggplot(final_china_data,aes(x=ObservationDate,y=Confirmed,group=1))+
+                        geom_line()+ 
+                        scale_x_date(date_labels = "%d-%B")                    
+plot
+
+```
+
+
+
+
+
+
+
+
+
